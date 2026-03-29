@@ -48,43 +48,4 @@ final class EventController extends AbstractController
             'reservationsCount' => $reservationsCount,
         ]);
     }
-
-    #[Route('/event/{id}/reserve', name: 'event_reserve')]
-    public function reserve(int $id, Request $request, EventRepository $repo, ReservationRepository $resRepo): Response
-    {
-        $event = $repo->findEventById($id);
-
-        if (!$event) {
-            throw $this->createNotFoundException('Événement non trouvé');
-        }
-
-        $currentReservations = $resRepo->count(['event_id' => $event]);
-        if ($event->getSeats() && $currentReservations >= $event->getSeats()) {
-            $this->addFlash('error', 'Désolé, cet événement est déjà complet.');
-            return $this->redirectToRoute('event_details', ['id' => $event->getId()]);
-        }
-
-        $reservation = new Reservation();
-        $reservation->setEventId($event);
-
-        $form = $this->createForm(ReservationType::class, $reservation);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $reservation->setCreatedat(new \DateTime());
-            
-            $entityManager = $resRepo->getEntityManager();
-            $entityManager->persist($reservation);
-            $entityManager->flush();
-
-            $this->addFlash('success', 'Votre réservation a été enregistrée avec succès !');
-
-            return $this->redirectToRoute('event_details', ['id' => $event->getId()]);
-        }
-
-        return $this->render('event/reserve.html.twig', [
-            'event' => $event,
-            'form' => $form->createView(),
-        ]);
-    }
 }

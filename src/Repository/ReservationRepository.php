@@ -16,6 +16,36 @@ class ReservationRepository extends ServiceEntityRepository
         parent::__construct($registry, Reservation::class);
     }
 
+        public function findAllReservations(): array
+    {
+        return $this->findAll();
+    }
+
+    public function findReservationById(int $id): ?Reservation
+    {
+        return $this->find($id);
+    }
+
+    public function createReservation(Reservation $reservation): void
+    {
+        $entityManager = $this->getEntityManager();
+        $entityManager->persist($reservation);
+        $entityManager->flush();
+    }
+
+    public function updateReservation(Reservation $reservation): void
+    {
+        $entityManager = $this->getEntityManager();
+        $entityManager->flush();
+    }
+
+    public function remove(Reservation $reservation): void
+    {
+        $entityManager = $this->getEntityManager();
+        $entityManager->remove($reservation);
+        $entityManager->flush();
+    }
+
     //    /**
     //     * @return Reservation[] Returns an array of Reservation objects
     //     */
