@@ -45,7 +45,8 @@
 
                             {% if isSoldOut %}
                                 <button class="btn-plan disabled" disabled>Sold Out</button>
-                            
+                            {% else %}
+                                <a href="{{ path('event_reserve', {'id': event.id}) }}" class="btn-plan">Réserver</a>
                             {% endif %}
                         </div>
                     </li>
