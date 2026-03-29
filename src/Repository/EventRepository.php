@@ -40,5 +40,35 @@ class EventRepository extends ServiceEntityRepository
     //            ->getOneOrNullResult()
     //        ;
     //    }
+
+     public function findAllEvents(): array
+    {
+        return $this->findAll();
+    }
+
+    public function findEventById(int $id): ?Event
+    {
+        return $this->find($id);
+    }
+
+    public function createEvent(Event $event): void
+    {
+        $entityManager = $this->getEntityManager();
+        $entityManager->persist($event);
+        $entityManager->flush();
+    }
+
+    public function updateEvent(Event $event): void
+    {
+        $entityManager = $this->getEntityManager();
+        $entityManager->flush();
+    }
+
+    public function remove(Event $event): void
+    {
+        $entityManager = $this->getEntityManager();
+        $entityManager->remove($event);
+        $entityManager->flush();
+    }
    
 }
