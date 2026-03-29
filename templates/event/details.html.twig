@@ -1,0 +1,87 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ event.title }}{% endblock %}
+
+{% block body %}
+
+<link rel="stylesheet" href="{{ asset('css/details.css') }}">
+
+<main class="content">
+
+    <section class="event-hero-banner">
+        <div class="hero-image-container">
+            <img src="{{ asset('images/events/' ~ (event.image ?: 'default.jpg')) }}" alt="{{ event.title }}">
+        </div>
+
+        <div class="hero-date-box">
+            <p class="day-of-week">LE</p>
+            <p class="date">{{ event.date|date('d') }}</p>
+            <p class="month-year">{{ event.date|date('F Y') }}</p>
+            <p class="location">{{ event.location }}</p>
+            <div class="price-time">
+                à partir de <span class="price">{{ event.price|number_format(0, '.', ',') }} TND</span>
+                <span class="time">à partir de {{ event.date|date('H:i') }}</span>
+            </div>
+        </div>
+    </section>
+
+    <section class="event-details-grid">
+
+        <div class="tickets-info-column">
+            <div class="detail-box tickets-box">
+                <h2>Billets</h2>
+                <ul>
+                    <li>
+                        <div class="date-time-price">
+                            <span class="ticket-date">{{ event.date|date('d/m/Y') }}</span>
+                            <span class="ticket-time">{{ event.date|date('H:i') }}</span>
+                            <span class="ticket-type">Orchestre</span>
+                        </div>
+                        <div class="ticket-action">
+                            <span class="ticket-price">{{ event.price|number_format(0, '.', ',') }} TND</span>
+
+                            {% set seatsLeft = event.seats - (reservationsCount[event.id] ?? 0) %}
+                            {% set isSoldOut = seatsLeft <= 0 %}
+
+                            {% if isSoldOut %}
+                                <button class="btn-plan disabled" disabled>Sold Out</button>
+                            
+                            {% endif %}
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="description-info-column">
+
+            <div class="icon-info-bar">
+                <div class="icon-item">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <p>{{ event.location }}</p>
+                </div>
+                <div class="icon-item">
+                    <i class="fas fa-calendar-alt"></i>
+                    <p>{{ event.date|date('d F Y') }}</p>
+                </div>
+                <div class="icon-item">
+                    <i class="fas fa-clock"></i>
+                    <p>{{ event.date|date('H:i') }}</p>
+                </div>
+                <div class="icon-item">
+                    <i class="fas fa-chair"></i>
+                    <p>{{ seatsLeft }} places libres</p>
+                </div>
+            </div>
+
+            <div class="detail-box description-box">
+                <h2>Description</h2>
+                <p>{{ event.description }}</p>
+            </div>
+
+        </div>
+
+    </section>
+</main>
+
+{% endblock %}
