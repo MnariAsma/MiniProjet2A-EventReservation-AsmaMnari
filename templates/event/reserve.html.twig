@@ -1,0 +1,72 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Réserver - {{ event.title }}{% endblock %}
+
+{% block body %}
+    <link rel="stylesheet" href="{{ asset('css/reserve.css') }}">
+
+    <main class="reserve-content">
+        <div class="reserve-container">
+            <div class="reserve-info-panel">
+                <div class="info-overlay"></div>
+                <img class="panel-bg" src="{{ asset('images/events/' ~ (event.image ?: 'default.jpg')) }}" alt="Event">
+                
+                <div class="panel-content">
+                    <h2>{{ event.title }}</h2>
+                    <p class="panel-date">
+                        <i class="fas fa-calendar-day"></i> {{ event.date|date('d F Y à H:i') }}
+                    </p>
+                    <p class="panel-location">
+                        <i class="fas fa-map-marker-alt"></i> {{ event.location }}
+                    </p>
+                    
+                    <div class="panel-price">
+                         Total à payer : <span>{{ event.price|default(0)|number_format(0, '.', ',') }} TND</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="reserve-form-panel">
+                <a href="{{ path('event_details', {'id': event.id}) }}" class="back-link"><i class="fas fa-arrow-left"></i> Retour</a>
+                
+                <h1>Réserver votre place</h1>
+                <p class="form-subtitle">Veuillez remplir vos informations pour confirmer la réservation.</p>
+
+                {{ form_start(form, {'attr': {'class': 'modern-form'}}) }}
+                    
+                    <div class="form-group">
+                        {{ form_label(form.name, null, {'label_attr': {'class': 'form-label'}}) }}
+                        <div class="input-wrapper">
+                            <i class="fas fa-user input-icon"></i>
+                            {{ form_widget(form.name) }}
+                        </div>
+                        <div class="form-error">{{ form_errors(form.name) }}</div>
+                    </div>
+
+                    <div class="form-group">
+                        {{ form_label(form.email, null, {'label_attr': {'class': 'form-label'}}) }}
+                        <div class="input-wrapper">
+                            <i class="fas fa-envelope input-icon"></i>
+                            {{ form_widget(form.email) }}
+                        </div>
+                        <div class="form-error">{{ form_errors(form.email) }}</div>
+                    </div>
+
+                    <div class="form-group">
+                        {{ form_label(form.phone, null, {'label_attr': {'class': 'form-label'}}) }}
+                        <div class="input-wrapper">
+                            <i class="fas fa-phone-alt input-icon"></i>
+                            {{ form_widget(form.phone) }}
+                        </div>
+                        <div class="form-error">{{ form_errors(form.phone) }}</div>
+                    </div>
+
+                    <button type="submit" class="btn-submit">
+                        Confirmer la Réservation <i class="fas fa-check-circle"></i>
+                    </button>
+
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </main>
+{% endblock %}

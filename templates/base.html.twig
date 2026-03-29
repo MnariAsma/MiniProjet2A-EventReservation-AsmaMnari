@@ -5,11 +5,9 @@
     <title>{% block title %}Top Events{% endblock %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <!-- CSS global -->
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
     <link rel="stylesheet" href="{{ asset('css/event.css') }}">
 
-    <!-- FontAwesome -->
     <link rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
@@ -19,13 +17,21 @@
 {% include 'partials/header.html.twig' %}
 
     <div class="page-wrapper">
+        <div class="flash-messages" style="position:fixed; top:80px; left:50%; transform:translateX(-50%); z-index:9999; display:flex; flex-direction:column; gap:10px; width:90%; max-width:600px;">
+            {% for label, messages in app.flashes %}
+                {% for message in messages %}
+                    <div class="flash-message flash-{{ label }}" style="padding: 15px 20px; border-radius: 8px; font-weight: bold; text-align: center; color: white; background: {{ label == 'success' ? '#10b981' : (label == 'error' ? '#ef4444' : '#3b82f6') }}; box-shadow: 0 4px 15px rgba(0,0,0,0.2); animation: fadeInDown 0.4s ease forwards;">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endfor %}
+        </div>
+        
         {% block body %}{% endblock %}
     </div>
 
 
     {% include 'partials/footer.html.twig' %}
-
-    <!-- JS -->
     <script src="{{ asset('js/main.js') }}"></script>
 
 </body>
