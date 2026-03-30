@@ -13,7 +13,26 @@
                 Événements
             </a>
 
-        
+            <div class="auth-links" style="display: inline-block; margin-left: 20px;">
+                <a href="{{ path('app_login') }}" id="nav-login" style="display: none;">Connexion</a>
+                <a href="javascript:void(0)" id="nav-logout" onclick="logout()" style="display: none;">Déconnexion</a>
+            </div>
+
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    const token = localStorage.getItem('jwt_token');
+                    const loginLink = document.getElementById('nav-login');
+                    const logoutLink = document.getElementById('nav-logout');
+                    
+                    if (token) {
+                        logoutLink.style.display = 'inline-block';
+                        loginLink.style.display = 'none';
+                    } else {
+                        loginLink.style.display = 'inline-block';
+                        logoutLink.style.display = 'none';
+                    }
+                });
+            </script>
         </nav>
     </div>
 </header>

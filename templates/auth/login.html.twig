@@ -1,0 +1,91 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Connexion — Top Events{% endblock %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="{{ asset('css/auth.css') }}">
+{% endblock %}
+
+{% block body %}
+<div class="auth-page">
+    <div class="auth-card">
+        <div class="auth-icon">
+            <i class="fas fa-fingerprint"></i>
+        </div>
+
+        <h1>Connexion</h1>
+        <p class="auth-subtitle">Connectez-vous à votre compte avec votre Passkey sécurisée</p>
+
+        <!-- Status message -->
+        <div class="auth-message" id="auth-message">
+            <i class="fas fa-info-circle"></i>
+            <span id="auth-message-text"></span>
+        </div>
+
+        <div class="auth-info">
+            <i class="fas fa-shield-alt"></i>
+            <p>L'authentification par Passkey utilise la biométrie de votre appareil (empreinte, Face ID) — aucun mot de passe n'est stocké.</p>
+        </div>
+
+        <button class="auth-btn-passkey" id="btn-login" onclick="handleLogin()">
+            <span class="spinner"></span>
+            <span class="btn-icon">🔐</span>
+            <span class="btn-text">Se connecter avec Passkey</span>
+        </button>
+
+        <div class="auth-links">
+            <p>Pas encore de compte ? <a href="{{ path('app_register') }}">Créer un compte</a></p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    <script>
+        async function handleLogin() {
+            const btn = document.getElementById('btn-login');
+            const msg = document.getElementById('auth-message');
+            const msgText = document.getElementById('auth-message-text');
+
+            btn.classList.add('loading');
+            btn.disabled = true;
+            msg.classList.remove('show', 'success', 'error');
+
+            try {
+                const result = await loginWithPasskey();
+
+                msg.classList.add('show', 'success');
+                msgText.textContent = 'Connexion réussie ! Redirection...';
+                msg.querySelector('i').className = 'fas fa-check-circle';
+
+                setTimeout(() => {
+                    window.location.href = '{{ path("home") }}';
+                }, 1000);
+            } catch (error) {
+                msg.classList.add('show', 'error');
+                msg.querySelector('i').className = 'fas fa-exclamation-circle';
+
+                if (error.name === 'NotAllowedError') {
+                    msgText.textContent = 'Authentification annulée. Veuillez réessayer.';
+                } else {
+                    msgText.textContent = error.message || 'Erreur de connexion. Veuillez réessayer.';
+                }
+
+                btn.classList.remove('loading');
+                btn.disabled = false;
+            }
+        }
+
+        // Check if already logged in
+        document.addEventListener('DOMContentLoaded', () => {
+            const token = localStorage.getItem('jwt_token');
+            if (token) {
+                const msg = document.getElementById('auth-message');
+                const msgText = document.getElementById('auth-message-text');
+                msg.classList.add('show', 'success');
+                msg.querySelector('i').className = 'fas fa-info-circle';
+                msgText.textContent = 'Vous êtes déjà connecté.';
+            }
+        });
+    </script>
+{% endblock %}
