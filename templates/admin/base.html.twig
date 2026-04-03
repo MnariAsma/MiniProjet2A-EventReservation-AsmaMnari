@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Admin — Top Events{% endblock %}</title>
+
+    <link rel="stylesheet" href="{{ asset('css/admin.css') }}">
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    {% block stylesheets %}{% endblock %}
+</head>
+<body>
+
+<div class="admin-layout">
+    {# Sidebar #}
+    <aside class="admin-sidebar" id="admin-sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-logo">
+                <i class="fas fa-bolt"></i>
+                <span>Top Events</span>
+            </div>
+            <span class="sidebar-badge">Admin</span>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="{{ path('admin_dashboard') }}"
+               class="sidebar-link {{ app.request.get('_route') == 'admin_dashboard' ? 'active' : '' }}">
+                <i class="fas fa-tachometer-alt"></i>
+                <span>Tableau de bord</span>
+            </a>
+            <a href="{{ path('admin_event_new') }}"
+               class="sidebar-link {{ app.request.get('_route') == 'admin_event_new' ? 'active' : '' }}">
+                <i class="fas fa-plus-circle"></i>
+                <span>Nouvel événement</span>
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="admin-user">
+                <i class="fas fa-user-shield"></i>
+                <span>{{ app.user.username }}</span>
+            </div>
+            <a href="{{ path('admin_logout') }}" class="sidebar-link logout-link">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Déconnexion</span>
+            </a>
+        </div>
+    </aside>
+
+    {# Main content #}
+    <main class="admin-main">
+        <header class="admin-topbar">
+            <button class="sidebar-toggle" id="sidebar-toggle" onclick="document.getElementById('admin-sidebar').classList.toggle('open')">
+                <i class="fas fa-bars"></i>
+            </button>
+            <h2 class="topbar-title">{% block page_title %}Tableau de bord{% endblock %}</h2>
+            <div class="topbar-right">
+                <span class="topbar-date">{{ "now"|date("d/m/Y") }}</span>
+            </div>
+        </header>
+
+        {# Flash messages #}
+        <div class="admin-flash-messages">
+            {% for label, messages in app.flashes %}
+                {% for message in messages %}
+                    <div class="admin-flash admin-flash-{{ label }}">
+                        <i class="fas {{ label == 'success' ? 'fa-check-circle' : 'fa-exclamation-circle' }}"></i>
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endfor %}
+        </div>
+
+        <div class="admin-content">
+            {% block body %}{% endblock %}
+        </div>
+    </main>
+</div>
+
+{% block javascripts %}{% endblock %}
+
+</body>
+</html>
