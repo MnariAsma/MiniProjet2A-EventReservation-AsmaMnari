@@ -1,0 +1,77 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Réservations — {{ event.title }} — Admin{% endblock %}
+{% block page_title %}Réservations{% endblock %}
+
+{% block body %}
+
+<div class="admin-card">
+    <div class="card-header">
+        <div>
+            <h3><i class="fas fa-users"></i> Réservations</h3>
+            <p class="card-subtitle">Événement : <strong>{{ event.title }}</strong> — {{ event.date|date('d/m/Y à H:i') }}</p>
+        </div>
+        <a href="{{ path('admin_dashboard') }}" class="btn-admin btn-secondary">
+            <i class="fas fa-arrow-left"></i> Retour
+        </a>
+    </div>
+
+    <div class="reservation-summary">
+        <div class="summary-item">
+            <i class="fas fa-map-marker-alt"></i>
+            <span>{{ event.location }}</span>
+        </div>
+        <div class="summary-item">
+            <i class="fas fa-chair"></i>
+            <span>{{ event.seats ? event.seats ~ ' places' : 'Places illimitées' }}</span>
+        </div>
+        <div class="summary-item">
+            <i class="fas fa-ticket-alt"></i>
+            <span>{{ reservations|length }} réservation(s)</span>
+        </div>
+        {% if event.price %}
+        <div class="summary-item">
+            <i class="fas fa-money-bill-wave"></i>
+            <span>{{ event.price }} TND</span>
+        </div>
+        {% endif %}
+    </div>
+
+    {% if reservations is not empty %}
+        <div class="table-responsive">
+            <table class="admin-table" id="reservations-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Nom</th>
+                        <th>Email</th>
+                        <th>Téléphone</th>
+                        <th>Date de réservation</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for reservation in reservations %}
+                        <tr>
+                            <td>{{ reservation.id }}</td>
+                            <td><strong>{{ reservation.name }}</strong></td>
+                            <td>
+                                <a href="mailto:{{ reservation.email }}" class="email-link">
+                                    {{ reservation.email }}
+                                </a>
+                            </td>
+                            <td>{{ reservation.phone }}</td>
+                            <td>{{ reservation.createdat ? reservation.createdat|date('d/m/Y H:i') : '—' }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <i class="fas fa-inbox"></i>
+            <p>Aucune réservation pour cet événement.</p>
+        </div>
+    {% endif %}
+</div>
+
+{% endblock %}

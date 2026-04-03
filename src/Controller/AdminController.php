@@ -34,7 +34,6 @@ class AdminController extends AbstractController
     #[Route('/logout', name: 'admin_logout')]
     public function logout(): void
     {
-        // This method is intercepted by the Symfony firewall
         throw new \LogicException('This method should not be reached.');
     }
 
@@ -117,7 +116,6 @@ class AdminController extends AbstractController
             throw $this->createNotFoundException('Événement non trouvé.');
         }
 
-        // CSRF protection
         if ($this->isCsrfTokenValid('delete-event-' . $id, $request->request->get('_token'))) {
             $eventRepo->remove($event);
             $this->addFlash('success', 'Événement supprimé avec succès !');
