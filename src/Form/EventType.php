@@ -5,12 +5,14 @@ namespace App\Form;
 use App\Entity\Event;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\MoneyType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\File;
 use Symfony\Component\Validator\Constraints\GreaterThanOrEqual;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
@@ -54,10 +56,18 @@ class EventType extends AbstractType
                     new GreaterThanOrEqual(value: 0, message: 'Le nombre de places doit être positif.'),
                 ],
             ])
-            ->add('image', TextType::class, [
-                'label' => 'Image (nom du fichier)',
+            ->add('image', FileType::class, [
+                'label' => 'Image de l\'événement',
+                'mapped' => false,
                 'required' => false,
-                'attr' => ['placeholder' => 'ex: concert.jpg', 'class' => 'admin-input'],
+                'attr' => ['class' => 'admin-input admin-file-input', 'accept' => 'image/*'],
+                'constraints' => [
+                    new File([
+                        'maxSize' => '5M',
+                        'mimeTypes' => ['image/jpeg', 'image/png', 'image/gif', 'image/webp'],
+                        'mimeTypesMessage' => 'Veuillez sélectionner une image valide (JPG, PNG, GIF, WEBP).',
+                    ]),
+                ],
             ])
             ->add('price', MoneyType::class, [
                 'label' => 'Prix (TND)',

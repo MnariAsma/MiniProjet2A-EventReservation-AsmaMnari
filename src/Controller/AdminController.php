@@ -7,10 +7,12 @@ use App\Form\EventType;
 use App\Repository\EventRepository;
 use App\Repository\ReservationRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
+use Symfony\Component\String\Slugger\SluggerInterface;
 
 #[Route('/admin')]
 class AdminController extends AbstractController
@@ -61,13 +63,21 @@ class AdminController extends AbstractController
     }
 
     #[Route('/event/new', name: 'admin_event_new')]
-    public function newEvent(Request $request, EventRepository $eventRepo): Response
+    public function newEvent(Request $request, EventRepository $eventRepo, SluggerInterface $slugger): Response
     {
         $event = new Event();
         $form = $this->createForm(EventType::class, $event);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $imageFile = $form->get('image')->getData();
+            if ($imageFile) {
+                $newFilename = $this->uploadImage($imageFile, $slugger);
+                if ($newFilename) {
+                    $event->setImage($newFilename);
+                }
+            }
+
             $eventRepo->createEvent($event);
 
             $this->addFlash('success', 'Événement créé avec succès !');
@@ -82,7 +92,7 @@ class AdminController extends AbstractController
     }
 
     #[Route('/event/{id}/edit', name: 'admin_event_edit')]
-    public function editEvent(int $id, Request $request, EventRepository $eventRepo): Response
+    public function editEvent(int $id, Request $request, EventRepository $eventRepo, SluggerInterface $slugger): Response
     {
         $event = $eventRepo->findEventById($id);
 
@@ -94,6 +104,14 @@ class AdminController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $imageFile = $form->get('image')->getData();
+            if ($imageFile) {
+                $newFilename = $this->uploadImage($imageFile, $slugger);
+                if ($newFilename) {
+                    $event->setImage($newFilename);
+                }
+            }
+
             $eventRepo->updateEvent($event);
 
             $this->addFlash('success', 'Événement mis à jour avec succès !');
@@ -140,4 +158,23 @@ class AdminController extends AbstractController
             'reservations' => $reservations,
         ]);
     }
+
+    private function uploadImage($imageFile, SluggerInterface $slugger): ?string
+    {
+        $originalFilename = pathinfo($imageFile->getClientOriginalName(), PATHINFO_FILENAME);
+        $safeFilename = $slugger->slug($originalFilename);
+        $newFilename = $safeFilename . '-' . uniqid() . '.' . $imageFile->guessExtension();
+
+        try {
+            $imageFile->move(
+                $this->getParameter('kernel.project_dir') . '/public/images/events',
+                $newFilename
+            );
+            return $newFilename;
+        } catch (FileException $e) {
+            $this->addFlash('error', 'Erreur lors du téléchargement de l\'image.');
+            return null;
+        }
+    }
 }
+
