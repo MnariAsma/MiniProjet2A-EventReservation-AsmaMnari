@@ -1,12 +1,17 @@
-{% extends 'base.html.twig' %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inscription — Top Events</title>
 
-{% block title %}Inscription — Top Events{% endblock %}
-
-{% block stylesheets %}
     <link rel="stylesheet" href="{{ asset('css/auth.css') }}">
-{% endblock %}
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+<style>* { margin: 0; padding: 0; box-sizing: border-box; } html, body { height: 100%; }</style>
 
-{% block body %}
 <div class="auth-page">
     <div class="auth-card">
         <div class="auth-icon">
@@ -51,53 +56,54 @@
         </div>
     </div>
 </div>
-{% endblock %}
 
-{% block javascripts %}
-    <script>
-        async function handleRegister(event) {
-            event.preventDefault();
+<script src="{{ asset('js/auth.js') }}"></script>
+<script>
+    async function handleRegister(event) {
+        event.preventDefault();
 
-            const btn = document.getElementById('btn-register');
-            const msg = document.getElementById('auth-message');
-            const msgText = document.getElementById('auth-message-text');
-            const email = document.getElementById('email').value.trim();
-            const username = document.getElementById('username').value.trim();
+        const btn = document.getElementById('btn-register');
+        const msg = document.getElementById('auth-message');
+        const msgText = document.getElementById('auth-message-text');
+        const email = document.getElementById('email').value.trim();
+        const username = document.getElementById('username').value.trim();
 
-            if (!email || !username) {
-                msg.classList.add('show', 'error');
-                msg.querySelector('i').className = 'fas fa-exclamation-circle';
-                msgText.textContent = 'Veuillez remplir tous les champs.';
-                return;
-            }
-
-            btn.classList.add('loading');
-            btn.disabled = true;
-            msg.classList.remove('show', 'success', 'error');
-
-            try {
-                const result = await registerPasskey(email, username);
-
-                msg.classList.add('show', 'success');
-                msg.querySelector('i').className = 'fas fa-check-circle';
-                msgText.textContent = 'Inscription réussie ! Redirection...';
-
-                setTimeout(() => {
-                    window.location.href = '{{ path("home") }}';
-                }, 1000);
-            } catch (error) {
-                msg.classList.add('show', 'error');
-                msg.querySelector('i').className = 'fas fa-exclamation-circle';
-
-                if (error.name === 'NotAllowedError') {
-                    msgText.textContent = 'Création de Passkey annulée. Veuillez réessayer.';
-                } else {
-                    msgText.textContent = error.message || 'Erreur lors de l\'inscription. Veuillez réessayer.';
-                }
-
-                btn.classList.remove('loading');
-                btn.disabled = false;
-            }
+        if (!email || !username) {
+            msg.classList.add('show', 'error');
+            msg.querySelector('i').className = 'fas fa-exclamation-circle';
+            msgText.textContent = 'Veuillez remplir tous les champs.';
+            return;
         }
-    </script>
-{% endblock %}
+
+        btn.classList.add('loading');
+        btn.disabled = true;
+        msg.classList.remove('show', 'success', 'error');
+
+        try {
+            const result = await registerPasskey(email, username);
+
+            msg.classList.add('show', 'success');
+            msg.querySelector('i').className = 'fas fa-check-circle';
+            msgText.textContent = 'Inscription réussie ! Redirection...';
+
+            setTimeout(() => {
+                window.location.href = '{{ path("event_list") }}';
+            }, 1000);
+        } catch (error) {
+            msg.classList.add('show', 'error');
+            msg.querySelector('i').className = 'fas fa-exclamation-circle';
+
+            if (error.name === 'NotAllowedError') {
+                msgText.textContent = 'Création de Passkey annulée. Veuillez réessayer.';
+            } else {
+                msgText.textContent = error.message || 'Erreur lors de l\'inscription. Veuillez réessayer.';
+            }
+
+            btn.classList.remove('loading');
+            btn.disabled = false;
+        }
+    }
+</script>
+
+</body>
+</html>
