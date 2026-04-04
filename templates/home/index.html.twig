@@ -1,0 +1,34 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Accueil{% endblock %}
+
+{% block body %}
+
+<section class="hero">
+    <div class="overlay"></div>
+    <div class="hero-content">
+        <h1>Vivez les meilleurs événements</h1>
+        <p>Découvrez, réservez et participez facilement</p>
+        <a href="{{ path('event_list') }}" class="btn">Explorer les événements</a>
+    </div>
+</section>
+
+<section class="features">
+    <h2>Nos services</h2>
+    <div class="features-container">
+        <div class="feature">
+            <h3>🎉 Événements uniques</h3>
+            <p>Concerts, conférences, workshops.</p>
+        </div>
+        <div class="feature">
+            <h3>📅 Réservation rapide</h3>
+            <p>Simple et instantanée.</p>
+        </div>
+        <div class="feature">
+            <h3>🔐 Sécurisé</h3>
+            <p>Données protégées.</p>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

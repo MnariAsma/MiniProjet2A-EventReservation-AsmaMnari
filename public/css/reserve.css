@@ -1,0 +1,223 @@
+
+.reserve-content {
+    min-height: calc(100vh - 70px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #f0f4f8 0%, #d9e2ec 100%);
+    padding: 60px 20px;
+    margin-top: 50px; 
+}
+
+.reserve-container {
+    display: flex;
+    max-width: 1000px;
+    width: 100%;
+    background: #ffffff;
+    border-radius: 20px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+    overflow: hidden;
+    position: relative;
+    animation: fadeIn 0.6s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.reserve-info-panel {
+    flex: 1;
+    position: relative;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 50px;
+    min-height: 500px;
+    overflow: hidden;
+}
+
+.panel-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 0;
+}
+
+.info-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(37, 99, 235, 0.9) 0%, rgba(15, 23, 42, 0.9) 100%);
+    z-index: 1;
+}
+
+.panel-content {
+    position: relative;
+    z-index: 2;
+}
+
+.panel-content h2 {
+    font-size: 32px;
+    font-weight: 800;
+    margin-bottom: 25px;
+    line-height: 1.2;
+}
+
+.panel-date, .panel-location {
+    font-size: 16px;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    opacity: 0.9;
+}
+
+.panel-price {
+    margin-top: 40px;
+    font-size: 16px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255,255,255,0.2);
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+.panel-price span {
+    font-size: 32px;
+    font-weight: 800;
+    color: #cbd5f5;
+    display: block;
+    margin-top: 5px;
+}
+
+.reserve-form-panel {
+    flex: 1.2;
+    padding: 50px;
+    background: #ffffff;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #64748b;
+    text-decoration: none;
+    font-weight: 600;
+    margin-bottom: 30px;
+    transition: color 0.3s;
+}
+
+.back-link:hover {
+    color: #2563eb;
+}
+
+.reserve-form-panel h1 {
+    font-size: 28px;
+    color: #1e293b;
+    margin-bottom: 10px;
+    font-weight: 800;
+}
+
+.form-subtitle {
+    color: #64748b;
+    margin-bottom: 35px;
+    font-size: 15px;
+}
+
+.modern-form .form-group {
+    margin-bottom: 25px;
+}
+
+.form-label {
+    display: block;
+    font-weight: 600;
+    color: #334155;
+    margin-bottom: 8px;
+}
+
+.input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-icon {
+    position: absolute;
+    left: 17px;
+    color: #94a3b8;
+    font-size: 16px;
+    z-index: 10;
+}
+
+.form-input {
+    width: 100%;
+    padding: 15px 15px 15px 45px;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    font-size: 15px;
+    color: #0f172a;
+    transition: all 0.3s ease;
+    background: #f8fafc;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: #3b82f6;
+    background: #ffffff;
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
+}
+
+.form-error ul {
+    list-style: none;
+    padding: 0;
+    margin: 8px 0 0 0;
+    color: #ef4444;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.btn-submit {
+    width: 100%;
+    padding: 16px;
+    background: #2563eb;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.btn-submit:hover {
+    background: #1d4ed8;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(37, 99, 235, 0.25);
+}
+
+@media (max-width: 768px) {
+    .reserve-container {
+        flex-direction: column;
+    }
+    .reserve-info-panel {
+        min-height: 250px;
+        padding: 40px 30px;
+    }
+    .reserve-form-panel {
+        padding: 40px 30px;
+    }
+}

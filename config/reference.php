@@ -645,7 +645,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         }>,
  *     },
  *     uid?: bool|array{ // Uid configuration
- *         enabled?: bool|Param, // Default: false
+ *         enabled?: bool|Param, // Default: true
  *         default_uuid_version?: 7|6|4|1|Param, // Default: 7
  *         name_based_uuid_version?: 5|3|Param, // Default: 5
  *         name_based_uuid_namespace?: scalar|Param|null,
@@ -1106,6 +1106,9 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *             filter?: scalar|Param|null, // Default: "({uid_key}={user_identifier})"
  *             password_attribute?: scalar|Param|null, // Default: null
  *         },
+ *         lexik_jwt?: array{
+ *             class?: scalar|Param|null, // Default: "Lexik\\Bundle\\JWTAuthenticationBundle\\Security\\User\\JWTUser"
+ *         },
  *     }>,
  *     firewalls?: array<string, array{ // Default: []
  *         pattern?: scalar|Param|null,
@@ -1154,6 +1157,39 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *             cache_pool?: string|Param, // The cache pool to use for storing the limiter state // Default: "cache.rate_limiter"
  *             storage_service?: string|Param, // The service ID of a custom storage implementation, this precedes any configured "cache_pool" // Default: null
  *         },
+ *         webauthn?: array{
+ *             user_provider?: scalar|Param|null, // Default: null
+ *             options_storage?: scalar|Param|null, // Default: "Webauthn\\Bundle\\Security\\Storage\\SessionStorage"
+ *             success_handler?: scalar|Param|null, // Default: "Webauthn\\Bundle\\Security\\Handler\\DefaultSuccessHandler"
+ *             failure_handler?: scalar|Param|null, // Default: "Webauthn\\Bundle\\Security\\Handler\\DefaultFailureHandler"
+ *             secured_rp_ids?: array<string, scalar|Param|null>,
+ *             authentication?: bool|array{
+ *                 enabled?: bool|Param, // Default: true
+ *                 profile?: scalar|Param|null, // Default: "default"
+ *                 options_builder?: scalar|Param|null, // Default: null
+ *                 routes?: array{
+ *                     host?: scalar|Param|null, // Default: null
+ *                     options_method?: scalar|Param|null, // Default: "POST"
+ *                     options_path?: scalar|Param|null, // Default: "/login/options"
+ *                     result_method?: scalar|Param|null, // Default: "POST"
+ *                     result_path?: scalar|Param|null, // Default: "/login"
+ *                 },
+ *                 options_handler?: scalar|Param|null, // Default: "Webauthn\\Bundle\\Security\\Handler\\DefaultRequestOptionsHandler"
+ *             },
+ *             registration?: bool|array{
+ *                 enabled?: bool|Param, // Default: false
+ *                 profile?: scalar|Param|null, // Default: "default"
+ *                 options_builder?: scalar|Param|null, // Default: null
+ *                 routes?: array{
+ *                     host?: scalar|Param|null, // Default: null
+ *                     options_method?: scalar|Param|null, // Default: "POST"
+ *                     options_path?: scalar|Param|null, // Default: "/register/options"
+ *                     result_method?: scalar|Param|null, // Default: "POST"
+ *                     result_path?: scalar|Param|null, // Default: "/register"
+ *                 },
+ *                 options_handler?: scalar|Param|null, // Default: "Webauthn\\Bundle\\Security\\Handler\\DefaultCreationOptionsHandler"
+ *             },
+ *         },
  *         x509?: array{
  *             provider?: scalar|Param|null,
  *             user?: scalar|Param|null, // Default: "SSL_CLIENT_S_DN_Email"
@@ -1163,6 +1199,10 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         remote_user?: array{
  *             provider?: scalar|Param|null,
  *             user?: scalar|Param|null, // Default: "REMOTE_USER"
+ *         },
+ *         jwt?: array{
+ *             provider?: scalar|Param|null, // Default: null
+ *             authenticator?: scalar|Param|null, // Default: "lexik_jwt_authentication.security.jwt_authenticator"
  *         },
  *         login_link?: array{
  *             check_route?: scalar|Param|null, // Route that will validate the login link - e.g. "app_login_link_verify".
@@ -1347,6 +1387,13 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *             always_remember_me?: bool|Param, // Default: false
  *             remember_me_parameter?: scalar|Param|null, // Default: "_remember_me"
  *         },
+ *         refresh_jwt?: array{
+ *             check_path?: scalar|Param|null, // Default: "/login_check"
+ *             provider?: scalar|Param|null,
+ *             success_handler?: scalar|Param|null,
+ *             failure_handler?: scalar|Param|null,
+ *             invalidate_token_on_logout?: bool|Param, // When enabled, the refresh token will be invalided on logout. // Default: true
+ *         },
  *     }>,
  *     access_control?: list<array{ // Default: []
  *         request_matcher?: scalar|Param|null, // Default: null
@@ -1511,6 +1558,197 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     generate_final_classes?: bool|Param, // Default: true
  *     generate_final_entities?: bool|Param, // Default: false
  * }
+ * @psalm-type LexikJwtAuthenticationConfig = array{
+ *     public_key?: scalar|Param|null, // The key used to sign tokens (useless for HMAC). If not set, the key will be automatically computed from the secret key. // Default: null
+ *     additional_public_keys?: list<scalar|Param|null>,
+ *     secret_key?: scalar|Param|null, // The key used to sign tokens. It can be a raw secret (for HMAC), a raw RSA/ECDSA key or the path to a file itself being plaintext or PEM. // Default: null
+ *     pass_phrase?: scalar|Param|null, // The key passphrase (useless for HMAC) // Default: ""
+ *     token_ttl?: scalar|Param|null, // Default: 3600
+ *     allow_no_expiration?: bool|Param, // Allow tokens without "exp" claim (i.e. indefinitely valid, no lifetime) to be considered valid. Caution: usage of this should be rare. // Default: false
+ *     clock_skew?: scalar|Param|null, // Default: 0
+ *     encoder?: array{
+ *         service?: scalar|Param|null, // Default: "lexik_jwt_authentication.encoder.lcobucci"
+ *         signature_algorithm?: scalar|Param|null, // Default: "RS256"
+ *     },
+ *     user_id_claim?: scalar|Param|null, // Default: "username"
+ *     token_extractors?: array{
+ *         authorization_header?: bool|array{
+ *             enabled?: bool|Param, // Default: true
+ *             prefix?: scalar|Param|null, // Default: "Bearer"
+ *             name?: scalar|Param|null, // Default: "Authorization"
+ *         },
+ *         cookie?: bool|array{
+ *             enabled?: bool|Param, // Default: false
+ *             name?: scalar|Param|null, // Default: "BEARER"
+ *         },
+ *         query_parameter?: bool|array{
+ *             enabled?: bool|Param, // Default: false
+ *             name?: scalar|Param|null, // Default: "bearer"
+ *         },
+ *         split_cookie?: bool|array{
+ *             enabled?: bool|Param, // Default: false
+ *             cookies?: list<scalar|Param|null>,
+ *         },
+ *     },
+ *     remove_token_from_body_when_cookies_used?: scalar|Param|null, // Default: true
+ *     set_cookies?: array<string, array{ // Default: []
+ *         lifetime?: scalar|Param|null, // The cookie lifetime. If null, the "token_ttl" option value will be used // Default: null
+ *         samesite?: "none"|"lax"|"strict"|Param, // Default: "lax"
+ *         path?: scalar|Param|null, // Default: "/"
+ *         domain?: scalar|Param|null, // Default: null
+ *         secure?: scalar|Param|null, // Default: true
+ *         httpOnly?: scalar|Param|null, // Default: true
+ *         partitioned?: scalar|Param|null, // Default: false
+ *         split?: list<scalar|Param|null>,
+ *     }>,
+ *     api_platform?: bool|array{ // API Platform compatibility: add check_path in OpenAPI documentation.
+ *         enabled?: bool|Param, // Default: false
+ *         check_path?: scalar|Param|null, // The login check path to add in OpenAPI. // Default: null
+ *         username_path?: scalar|Param|null, // The path to the username in the JSON body. // Default: null
+ *         password_path?: scalar|Param|null, // The path to the password in the JSON body. // Default: null
+ *     },
+ *     access_token_issuance?: bool|array{
+ *         enabled?: bool|Param, // Default: false
+ *         signature?: array{
+ *             algorithm?: scalar|Param|null, // The algorithm use to sign the access tokens.
+ *             key?: scalar|Param|null, // The signature key. It shall be JWK encoded.
+ *         },
+ *         encryption?: bool|array{
+ *             enabled?: bool|Param, // Default: false
+ *             key_encryption_algorithm?: scalar|Param|null, // The key encryption algorithm is used to encrypt the token.
+ *             content_encryption_algorithm?: scalar|Param|null, // The key encryption algorithm is used to encrypt the token.
+ *             key?: scalar|Param|null, // The encryption key. It shall be JWK encoded.
+ *         },
+ *     },
+ *     access_token_verification?: bool|array{
+ *         enabled?: bool|Param, // Default: false
+ *         signature?: array{
+ *             header_checkers?: list<scalar|Param|null>,
+ *             claim_checkers?: list<scalar|Param|null>,
+ *             mandatory_claims?: list<scalar|Param|null>,
+ *             allowed_algorithms?: list<scalar|Param|null>,
+ *             keyset?: scalar|Param|null, // The signature keyset. It shall be JWKSet encoded.
+ *         },
+ *         encryption?: bool|array{
+ *             enabled?: bool|Param, // Default: false
+ *             continue_on_decryption_failure?: bool|Param, // If enable, non-encrypted tokens or tokens that failed during decryption or verification processes are accepted. // Default: false
+ *             header_checkers?: list<scalar|Param|null>,
+ *             allowed_key_encryption_algorithms?: list<scalar|Param|null>,
+ *             allowed_content_encryption_algorithms?: list<scalar|Param|null>,
+ *             keyset?: scalar|Param|null, // The encryption keyset. It shall be JWKSet encoded.
+ *         },
+ *     },
+ *     blocklist_token?: bool|array{
+ *         enabled?: bool|Param, // Default: false
+ *         cache?: scalar|Param|null, // Storage to track blocked tokens // Default: "cache.app"
+ *     },
+ * }
+ * @psalm-type GesdinetJwtRefreshTokenConfig = array{
+ *     ttl?: int|Param, // The default TTL for all authenticators. // Default: 2592000
+ *     ttl_update?: bool|Param, // The default update TTL flag for all authenticators. // Default: false
+ *     manager_type?: scalar|Param|null, // Set the type of object manager to use (default: orm) // Default: "orm"
+ *     refresh_token_class?: scalar|Param|null, // Set the refresh token class to use
+ *     object_manager?: scalar|Param|null, // Set the object manager to use (default: doctrine.orm.entity_manager) // Default: null
+ *     single_use?: scalar|Param|null, // When true, generate a new refresh token on consumption (deleting the old one) // Default: false
+ *     token_parameter_name?: scalar|Param|null, // The default request parameter name containing the refresh token for all authenticators. // Default: "refresh_token"
+ *     cookie?: bool|array{
+ *         enabled?: bool|Param, // Default: false
+ *         same_site?: "none"|"lax"|"strict"|Param, // Default: "lax"
+ *         path?: scalar|Param|null, // Default: "/"
+ *         domain?: scalar|Param|null, // Default: null
+ *         http_only?: scalar|Param|null, // Default: true
+ *         secure?: scalar|Param|null, // Default: true
+ *         partitioned?: scalar|Param|null, // Default: false
+ *         remove_token_from_body?: scalar|Param|null, // Default: true
+ *     },
+ *     return_expiration?: scalar|Param|null, // When true, the response will include the token expiration timestamp // Default: false
+ *     return_expiration_parameter_name?: scalar|Param|null, // The default response parameter name containing the refresh token expiration timestamp // Default: "refresh_token_expiration"
+ *     default_invalid_batch_size?: int|Param, // The default batch size when clearing invalid tokens // Default: 1000
+ * }
+ * @psalm-type WebauthnConfig = array{
+ *     http_message_factory?: scalar|Param|null, // Deprecated: The class "http_message_factory" configuration option is deprecated since 4.5.0 and will be removed in 5.0.0. Not needed anymore. // Creates PSR-7 HTTP Request and Response instances from Symfony ones. // Default: null
+ *     clock?: scalar|Param|null, // PSR-20 Clock service. // Default: "webauthn.clock.default"
+ *     event_dispatcher?: scalar|Param|null, // PSR-14 Event Dispatcher service. // Default: "Psr\\EventDispatcher\\EventDispatcherInterface"
+ *     request_factory?: scalar|Param|null, // PSR-17 Request Factory. // Default: null
+ *     http_client?: scalar|Param|null, // A Symfony HTTP client. // Default: "webauthn.http_client.default"
+ *     logger?: scalar|Param|null, // A PSR-3 logger to receive logs during the processes // Default: "webauthn.logger.default"
+ *     credential_repository?: scalar|Param|null, // This repository is responsible of the credential storage // Default: "Webauthn\\Bundle\\Repository\\DummyPublicKeyCredentialSourceRepository"
+ *     user_repository?: scalar|Param|null, // This repository is responsible of the user storage // Default: "Webauthn\\Bundle\\Repository\\DummyPublicKeyCredentialUserEntityRepository"
+ *     token_binding_support_handler?: scalar|Param|null, // Deprecated: The child node "token_binding_support_handler" at path "webauthn.token_binding_support_handler" is deprecated. // This handler will check the token binding header from the request. By default, it is ignored. // Default: null
+ *     secured_rp_ids?: array<string, scalar|Param|null>,
+ *     counter_checker?: scalar|Param|null, // This service will check if the counter is valid. By default it throws an exception (recommended). // Default: "Webauthn\\Counter\\ThrowExceptionIfInvalid"
+ *     top_origin_validator?: scalar|Param|null, // For cross origin (e.g. iframe), this service will be in charge of verifying the top origin. // Default: null
+ *     creation_profiles?: array<string, array{ // Default: []
+ *         rp?: array{
+ *             id?: scalar|Param|null, // Default: null
+ *             name?: scalar|Param|null,
+ *             icon?: scalar|Param|null, // Default: null
+ *         },
+ *         challenge_length?: int|Param, // Default: 32
+ *         timeout?: int|Param, // Default: null
+ *         authenticator_selection_criteria?: array{
+ *             attachment_mode?: scalar|Param|null, // Deprecated: Use "authenticator_attachment" instead // Default: null
+ *             authenticator_attachment?: scalar|Param|null, // Default: null
+ *             require_resident_key?: bool|Param, // Default: false
+ *             user_verification?: scalar|Param|null, // Default: "preferred"
+ *             resident_key?: scalar|Param|null, // Default: "preferred"
+ *         },
+ *         extensions?: array<string, scalar|Param|null>,
+ *         public_key_credential_parameters?: list<int|Param>,
+ *         attestation_conveyance?: scalar|Param|null, // Default: "none"
+ *     }>,
+ *     request_profiles?: array<string, array{ // Default: []
+ *         rp_id?: scalar|Param|null, // Default: null
+ *         challenge_length?: int|Param, // Default: 32
+ *         timeout?: int|Param, // Default: null
+ *         user_verification?: scalar|Param|null, // Default: "preferred"
+ *         extensions?: array<string, scalar|Param|null>,
+ *     }>,
+ *     metadata?: bool|array{ // Enable the support of the Metadata Statements. Please read the documentation for this feature.
+ *         enabled?: bool|Param, // Default: false
+ *         mds_repository?: scalar|Param|null, // The Metadata Statement repository.
+ *         status_report_repository?: scalar|Param|null, // The Status Report repository.
+ *         certificate_chain_checker?: scalar|Param|null, // A Certificate Chain checker. // Default: "Webauthn\\MetadataService\\CertificateChain\\PhpCertificateChainValidator"
+ *     },
+ *     controllers?: bool|array{
+ *         enabled?: bool|Param, // Default: false
+ *         creation?: array<string, array{ // Default: []
+ *             options_method?: scalar|Param|null, // Default: "POST"
+ *             options_path?: scalar|Param|null,
+ *             result_method?: scalar|Param|null, // Default: "POST"
+ *             result_path?: scalar|Param|null,
+ *             host?: scalar|Param|null, // Default: null
+ *             profile?: scalar|Param|null, // Default: "default"
+ *             options_builder?: scalar|Param|null, // When set, corresponds to the ID of the Public Key Credential Creation Builder. The profile-based ebuilder is ignored. // Default: null
+ *             user_entity_guesser?: scalar|Param|null,
+ *             options_storage?: scalar|Param|null, // Service responsible of the options/user entity storage during the ceremony // Default: "Webauthn\\Bundle\\Security\\Storage\\SessionStorage"
+ *             success_handler?: scalar|Param|null, // Default: "Webauthn\\Bundle\\Service\\DefaultSuccessHandler"
+ *             failure_handler?: scalar|Param|null, // Default: "Webauthn\\Bundle\\Service\\DefaultFailureHandler"
+ *             options_handler?: scalar|Param|null, // Default: "Webauthn\\Bundle\\Security\\Handler\\DefaultCreationOptionsHandler"
+ *             secured_rp_ids?: array<string, scalar|Param|null>,
+ *         }>,
+ *         request?: array<string, array{ // Default: []
+ *             options_method?: scalar|Param|null, // Default: "POST"
+ *             options_path?: scalar|Param|null,
+ *             result_method?: scalar|Param|null, // Default: "POST"
+ *             result_path?: scalar|Param|null,
+ *             host?: scalar|Param|null, // Default: null
+ *             profile?: scalar|Param|null, // Default: "default"
+ *             options_builder?: scalar|Param|null, // When set, corresponds to the ID of the Public Key Credential Creation Builder. The profile-based ebuilder is ignored. // Default: null
+ *             options_storage?: scalar|Param|null, // Service responsible of the options/user entity storage during the ceremony // Default: "Webauthn\\Bundle\\Security\\Storage\\SessionStorage"
+ *             success_handler?: scalar|Param|null, // Default: "Webauthn\\Bundle\\Service\\DefaultSuccessHandler"
+ *             failure_handler?: scalar|Param|null, // Default: "Webauthn\\Bundle\\Service\\DefaultFailureHandler"
+ *             options_handler?: scalar|Param|null, // Default: "Webauthn\\Bundle\\Security\\Handler\\DefaultRequestOptionsHandler"
+ *             secured_rp_ids?: array<string, scalar|Param|null>,
+ *         }>,
+ *     },
+ *     android_safetynet?: array{ // Additional configuration options for the Android SafetyNet attestation.
+ *         leeway?: int|Param, // Leeway for timestamp verification in response (in millisecond). At least 2000 msec are recommended. // Default: 0
+ *         max_age?: int|Param, // Maximum age of the response (in millisecond) // Default: 60000
+ *         api_key?: scalar|Param|null, // If set, the application will verify the statements using Google API. See https://console.cloud.google.com/apis/library to get it. // Default: null
+ *         http_client?: scalar|Param|null, // Symfony client to use to send the request to Google API. // Default: "Symfony\\Contracts\\HttpClient\\HttpClientInterface"
+ *     },
+ * }
  * @psalm-type ConfigType = array{
  *     imports?: ImportsConfig,
  *     parameters?: ParametersConfig,
@@ -1524,6 +1762,9 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     twig_extra?: TwigExtraConfig,
  *     security?: SecurityConfig,
  *     monolog?: MonologConfig,
+ *     lexik_jwt_authentication?: LexikJwtAuthenticationConfig,
+ *     gesdinet_jwt_refresh_token?: GesdinetJwtRefreshTokenConfig,
+ *     webauthn?: WebauthnConfig,
  *     "when@dev"?: array{
  *         imports?: ImportsConfig,
  *         parameters?: ParametersConfig,
@@ -1540,6 +1781,9 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         security?: SecurityConfig,
  *         monolog?: MonologConfig,
  *         maker?: MakerConfig,
+ *         lexik_jwt_authentication?: LexikJwtAuthenticationConfig,
+ *         gesdinet_jwt_refresh_token?: GesdinetJwtRefreshTokenConfig,
+ *         webauthn?: WebauthnConfig,
  *     },
  *     "when@prod"?: array{
  *         imports?: ImportsConfig,
@@ -1554,6 +1798,9 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         twig_extra?: TwigExtraConfig,
  *         security?: SecurityConfig,
  *         monolog?: MonologConfig,
+ *         lexik_jwt_authentication?: LexikJwtAuthenticationConfig,
+ *         gesdinet_jwt_refresh_token?: GesdinetJwtRefreshTokenConfig,
+ *         webauthn?: WebauthnConfig,
  *     },
  *     "when@test"?: array{
  *         imports?: ImportsConfig,
@@ -1569,6 +1816,9 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         twig_extra?: TwigExtraConfig,
  *         security?: SecurityConfig,
  *         monolog?: MonologConfig,
+ *         lexik_jwt_authentication?: LexikJwtAuthenticationConfig,
+ *         gesdinet_jwt_refresh_token?: GesdinetJwtRefreshTokenConfig,
+ *         webauthn?: WebauthnConfig,
  *     },
  *     ...<string, ExtensionType|array{ // extra keys must follow the when@%env% pattern or match an extension alias
  *         imports?: ImportsConfig,

@@ -1,0 +1,112 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Tableau de bord — Admin{% endblock %}
+{% block page_title %}Tableau de bord{% endblock %}
+
+{% block body %}
+
+{# Statistics Cards #}
+<div class="stats-grid">
+    <div class="stat-card stat-blue">
+        <div class="stat-icon"><i class="fas fa-calendar-alt"></i></div>
+        <div class="stat-info">
+            <span class="stat-number">{{ totalEvents }}</span>
+            <span class="stat-label">Événements</span>
+        </div>
+    </div>
+    <div class="stat-card stat-green">
+        <div class="stat-icon"><i class="fas fa-ticket-alt"></i></div>
+        <div class="stat-info">
+            <span class="stat-number">{{ totalReservations }}</span>
+            <span class="stat-label">Réservations</span>
+        </div>
+    </div>
+    <div class="stat-card stat-purple">
+        <div class="stat-icon"><i class="fas fa-clock"></i></div>
+        <div class="stat-info">
+            <span class="stat-number">{{ upcomingEvents }}</span>
+            <span class="stat-label">À venir</span>
+        </div>
+    </div>
+</div>
+
+{# Events Table #}
+<div class="admin-card">
+    <div class="card-header">
+        <h3><i class="fas fa-list"></i> Liste des événements</h3>
+        <a href="{{ path('admin_event_new') }}" class="btn-admin btn-primary">
+            <i class="fas fa-plus"></i> Nouveau
+        </a>
+    </div>
+
+    {% if events is not empty %}
+        <div class="table-responsive">
+            <table class="admin-table" id="events-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Titre</th>
+                        <th>Date</th>
+                        <th>Lieu</th>
+                        <th>Places</th>
+                        <th>Réserv.</th>
+                        <th>Prix</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for event in events %}
+                        {% set resCount = reservationsCount[event.id] ?? 0 %}
+                        {% set isSoldOut = event.seats and resCount >= event.seats %}
+                        <tr>
+                            <td>{{ event.id }}</td>
+                            <td>
+                                <strong>{{ event.title }}</strong>
+                                {% if isSoldOut %}
+                                    <span class="badge badge-red">Complet</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ event.date|date('d/m/Y H:i') }}</td>
+                            <td>{{ event.location }}</td>
+                            <td>{{ event.seats ?? '∞' }}</td>
+                            <td>
+                                <span class="badge badge-blue">{{ resCount }}</span>
+                            </td>
+                            <td>{{ event.price ? event.price ~ ' TND' : 'Gratuit' }}</td>
+                            <td>
+                                <div class="action-buttons">
+                                    <a href="{{ path('admin_event_reservations', {id: event.id}) }}"
+                                       class="btn-icon btn-info" title="Réservations">
+                                        <i class="fas fa-users"></i>
+                                    </a>
+                                    <a href="{{ path('admin_event_edit', {id: event.id}) }}"
+                                       class="btn-icon btn-warning" title="Modifier">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <form method="post" action="{{ path('admin_event_delete', {id: event.id}) }}"
+                                          style="display:inline"
+                                          onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet événement ?')">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('delete-event-' ~ event.id) }}">
+                                        <button type="submit" class="btn-icon btn-danger" title="Supprimer">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <i class="fas fa-calendar-plus"></i>
+            <p>Aucun événement pour le moment.</p>
+            <a href="{{ path('admin_event_new') }}" class="btn-admin btn-primary">
+                <i class="fas fa-plus"></i> Créer un événement
+            </a>
+        </div>
+    {% endif %}
+</div>
+
+{% endblock %}

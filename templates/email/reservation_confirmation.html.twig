@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Confirmation de Réservation</title>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+        .header {
+            background-color: #2563eb;
+            color: #ffffff;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        .content {
+            padding: 30px;
+        }
+        .greeting {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        .details-box {
+            background-color: #f1f5f9;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+        }
+        .detail-item {
+            margin-bottom: 10px;
+            font-size: 15px;
+        }
+        .detail-item strong {
+            color: #334155;
+            display: inline-block;
+            width: 120px;
+        }
+        .button-container {
+            text-align: center;
+            margin-top: 30px;
+        }
+        .btn {
+            background-color: #2563eb;
+            color: #ffffff;
+            text-decoration: none;
+            padding: 12px 25px;
+            border-radius: 6px;
+            font-weight: bold;
+            display: inline-block;
+        }
+        .footer {
+            text-align: center;
+            padding: 20px;
+            font-size: 12px;
+            color: #64748b;
+            border-top: 1px solid #e2e8f0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Top Events</h1>
+            <p style="margin: 10px 0 0; opacity: 0.9;">Votre réservation est confirmée</p>
+        </div>
+        <div class="content">
+            <p class="greeting">Bonjour {{ reservation.name }},</p>
+            <p>Nous avons le plaisir de vous confirmer votre réservation pour l'événement suivant :</p>
+            
+            <div class="details-box">
+                <div class="detail-item">
+                    <strong>Événement :</strong> {{ event.title }}
+                </div>
+                <div class="detail-item">
+                    <strong>Date :</strong> {{ event.date|date('d F Y à H:i') }}
+                </div>
+                <div class="detail-item">
+                    <strong>Lieu :</strong> {{ event.location }}
+                </div>
+                <div class="detail-item">
+                    <strong>Réservation au nom de :</strong> {{ reservation.name }}
+                </div>
+                <div class="detail-item">
+                    <strong>Téléphone :</strong> {{ reservation.phone }}
+                </div>
+                <div class="detail-item">
+                    <strong>Prix :</strong> {% if event.price %}{{ event.price|number_format(0, '.', ',') }} TND{% else %}Gratuit{% endif %}
+                </div>
+            </div>
+            
+            <p>Merci pour votre confiance. Préparez-vous à vivre un moment inoubliable !</p>
+        </div>
+        <div class="footer">
+            Ceci est un email automatique de Top Events, merci de ne pas y répondre.
+        </div>
+    </div>
+</body>
+</html>

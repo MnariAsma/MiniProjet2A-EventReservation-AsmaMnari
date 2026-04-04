@@ -1,0 +1,73 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nos événements{% endblock %}
+
+{% block body %}
+
+<main class="content">
+
+    <section class="events-hero">
+        <h1>Nos événements</h1>
+        <p>Découvrez et réservez les meilleurs événements</p>
+    </section>
+
+    <section class="events-container">
+
+        {% if events is not empty %}
+
+            {% for event in events %}
+                {% set resCount = reservationsCount[event.id] ?? 0 %}
+                {% set isSoldOut = event.seats and resCount >= event.seats %}
+
+                <div class="event-card {{ isSoldOut ? 'sold-out' : '' }}">
+                    
+                    <div class="event-image">
+                      
+                        <img src="{{ asset('images/events/' ~ (event.image ?? 'default.jpg')) }}"
+                             alt="{{ event.title }}">
+                        {% if isSoldOut %}
+                            <div class="soldout-ticket">SOLD&nbsp;OUT</div>
+                        {% endif %}
+                    </div>
+                    <div class="event-content">
+
+                        <h3>{{ event.title }}</h3>
+
+                       
+                        <p>
+                            {{ event.description
+                                ? event.description|slice(0, 50) ~ '...'
+                                : 'Pas de description'
+                            }}
+                        </p>
+
+                        <span>📍 {{ event.location }}</span>
+
+                        <span>
+                            📅 {{ event.date|date('d/m/Y \\à H:i') }}
+                        </span>
+                        {% if event.seats %}
+                            <span>🎟️ Places : {{ resCount }} / {{ event.seats }}</span>
+                        {% endif %}
+
+                        {% if not isSoldOut %}
+                            <a href="{{ path('event_details', {'id': event.id}) }}" class="btn-small">details</a>
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+            {% endfor %}
+
+        {% else %}
+            <p style="text-align:center; margin: 50px 0;">
+                Aucun événement disponible pour le moment.
+            </p>
+        {% endif %}
+
+    </section>
+
+</main>
+
+{% endblock %}

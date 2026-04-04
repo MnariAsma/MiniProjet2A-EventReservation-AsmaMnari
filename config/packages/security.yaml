@@ -5,27 +5,60 @@ security:
 
     # https://symfony.com/doc/current/security.html#loading-the-user-the-user-provider
     providers:
-        users_in_memory: { memory: null }
+        app_user_provider:
+            entity:
+                class: App\Entity\User
+                property: email
+        admin_provider:
+            entity:
+                class: App\Entity\Admin
+                property: username
 
     firewalls:
         dev:
             # Ensure dev tools and static assets are always allowed
-            pattern: ^/(_profiler|_wdt|assets|build)/
+            pattern: ^/(_(profiler|wdt)|assets|build|css|images|js)/
             security: false
+        auth_api:
+            pattern: ^/api/auth/(register|login)
+            stateless: true
+            security: false
+
+        admin:
+            pattern: ^/admin
+            provider: admin_provider
+            form_login:
+                login_path: admin_login
+                check_path: admin_login
+                default_target_path: admin_dashboard
+                username_parameter: _username
+                password_parameter: _password
+                enable_csrf: true
+            logout:
+                path: admin_logout
+                target: admin_login
+
+        api:
+            pattern: ^/api
+            stateless: true
+            provider: app_user_provider
+            entry_point: jwt
+            jwt: ~
+            refresh_jwt:
+                check_path: /api/token/refresh
+
         main:
             lazy: true
-            provider: users_in_memory
-
-            # Activate different ways to authenticate:
-            # https://symfony.com/doc/current/security.html#the-firewall
-
-            # https://symfony.com/doc/current/security/impersonating_user.html
-            # switch_user: true
+            provider: app_user_provider
+            # ... normal authentication methods here ...
 
     # Note: Only the *first* matching rule is applied
     access_control:
-        # - { path: ^/admin, roles: ROLE_ADMIN }
-        # - { path: ^/profile, roles: ROLE_USER }
+        - { path: ^/admin/login, roles: PUBLIC_ACCESS }
+        - { path: ^/admin, roles: ROLE_ADMIN }
+        - { path: ^/api/auth/(register|login), roles: PUBLIC_ACCESS }
+        - { path: ^/api/token/refresh, roles: PUBLIC_ACCESS }
+        - { path: ^/api, roles: ROLE_USER }
 
 when@test:
     security:

@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Déconnexion — Top Events</title>
+    <link rel="stylesheet" href="{{ asset('css/auth.css') }}">
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; } 
+        html, body { height: 100%; display: flex; align-items: center; justify-content: center; background-color: #f3f4f6; font-family: 'Inter', sans-serif; }
+        .logout-container { text-align: center; background: white; padding: 40px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
+        .spinner { border: 4px solid rgba(0,0,0,0.1); width: 40px; height: 40px; border-radius: 50%; border-left-color: #3b82f6; animation: spin 1s linear infinite; margin: 0 auto 20px auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+<div class="logout-container">
+    <div class="spinner"></div>
+    <h2 style="color: #1f2937; margin-bottom: 10px;">Déconnexion en cours...</h2>
+    <p style="color: #6b7280; font-size: 14px;">Veuillez patienter.</p>
+</div>
+
+<script src="{{ asset('js/auth.js') }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        logout();
+    });
+</script>
+
+</body>
+</html>
